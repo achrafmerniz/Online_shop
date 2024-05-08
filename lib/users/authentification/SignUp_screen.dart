@@ -82,8 +82,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-         
-          
           Container(
             color: Colors.orange.shade800,
           ),

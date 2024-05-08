@@ -1,5 +1,6 @@
-import 'package:clothes_app/home_view.dart';
+
 import 'package:clothes_app/users/authentification/SignUp_screen.dart';
+import 'package:clothes_app/users/fragments/dashboard_of_fragments.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -165,9 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         borderRadius: BorderRadius.circular(30),
                                         child: InkWell(
                                           onTap: () {
-                                            Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) => HomePage()),
-                                        );
+                                             Get.to(DashboardOfFragments());
                                           },
                                           borderRadius: BorderRadius.circular(30),
                                           child: Padding(
@@ -198,9 +197,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) => SignUpScreen()),
-                                        );
+                                        // Navigator.of(context).push(
+                                        //   MaterialPageRoute(builder: (context) => SignUpScreen()),
+                                        Get.to(SignUpScreen());
+                                        // );
                                       },
                                       child: Text(
                                         "Register Here",

@@ -20,7 +20,17 @@ class MyApp extends StatelessWidget {
       primarySwatch: Colors.blue,
       ),
       
-      home:FutureBuilder(future: null, builder: (context,dataSnapShot){
+      home:FutureBuilder(
+          future: /*RememberUserPrefs.readUserInfo(),*/
+          null, builder: (context,dataSnapShot){
+        /*if(dataSnapShot.data == null)
+        {
+        return LoginScreen();
+        }
+        else
+        {
+        return DashboardOfFragments();
+        } */
         return SplashScreen();
       })
     );

@@ -38,6 +38,7 @@ dependencies:
   fluttertoast: ^8.2.5
   shared_preferences: ^2.2.3
   font_awesome_flutter: ^10.7.0
+  image_picker: ^1.1.1
   
 
 

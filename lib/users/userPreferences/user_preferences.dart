@@ -1,9 +1,9 @@
-/* import 'dart:convert';
+ import 'dart:convert';
  import 'package:clothes_app/users/model/user.dart';
  import 'package:shared_preferences/shared_preferences.dart';
 
 class RememberUserPrefs{
-save-remember user-infos
+// save-remember user-infos
  static Future<void> storeUserInfo(User userInfo)async{
 
    SharedPreferences preferences =await SharedPreferences.getInstance();
@@ -22,6 +22,9 @@ save-remember user-infos
   return currentUserInfo;
   
  }
+ static Future<User?> removeUserInfo() async{
+  SharedPreferences preferences =await SharedPreferences.getInstance();
+  await preferences.remove("currentUser");
+ }
 }
 
-*/

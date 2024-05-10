@@ -1,9 +1,41 @@
+import 'package:clothes_app/users/authentification/login_screen.dart';
+import 'package:clothes_app/users/userPreferences/user_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ProfileFragmentScreen extends StatelessWidget {
   const ProfileFragmentScreen({super.key});
 
   //final CurrentUser _currentUser = Get.put(CurrentUser());
+  signOutUser() async{
+   var resultResponse = await Get.dialog(
+      AlertDialog(
+        backgroundColor: Colors.grey,
+        title:const Text('Logout ',
+        style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+        ),
+        content: Text('Are you sure?\n you want to logout from app?'),
+        actions: [
+          TextButton(onPressed: (){
+            Get.back();
+          }, 
+          child:const Text('No',style: TextStyle(color: Colors.grey),)
+          ),
+          TextButton(onPressed: (){
+            Get.back(result: "LoggedOut");
+          }, 
+          child:const Text('Yes',style: TextStyle(color: Colors.grey),),)
+        ],
+      ),
+      
+    );
+    if(resultResponse=="LoggedOut"){
+      RememberUserPrefs.readUserInfo()
+      .then((value) {
+              Get.off(LoginScreen());
+      });
+    }
+  }
 
 
   Widget userInfoItemProfile(IconData iconData, String userData)

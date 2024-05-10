@@ -1,23 +1,64 @@
 
-import 'package:clothes_app/admin/admin_login.dart';
+import 'dart:convert';
+
 import 'package:clothes_app/admin/admin_upload_items.dart';
+import 'package:clothes_app/api_connection/api_connection.dart';
 import 'package:clothes_app/users/authentification/SignUp_screen.dart';
+import 'package:clothes_app/users/authentification/login_screen.dart';
 import 'package:clothes_app/users/fragments/dashboard_of_fragments.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class AdminLoginScreen extends StatefulWidget {
+  const AdminLoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<AdminLoginScreen> createState() => _AdminLoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _AdminLoginScreenState extends State<AdminLoginScreen> {
   var formkey = GlobalKey<FormState>();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var isObscure = true.obs;
+
+  loginAdminNow() async
+  {
+    try
+    {
+      var res = await http.post(
+        Uri.parse(API.adminLogin),
+        body: {
+          "admin_email": emailController.text.trim(),
+          "admin_password": passwordController.text.trim(),
+        },
+      );
+
+      if(res.statusCode == 200) //from flutter app the connection with api to server - success
+      {
+        var resBodyOfLogin = jsonDecode(res.body);
+        if(resBodyOfLogin['success'] == true)
+        {
+          Fluttertoast.showToast(msg: "Dear Admin, you are logged-in Successfully.");
+
+          Future.delayed(const Duration(milliseconds: 2000), ()
+          {
+            Get.to(AdminUploadItemsScreen());
+          });
+        }
+        else
+        {
+          Fluttertoast.showToast(msg: "Incorrect Credentials.\nPlease write correct password or email and Try Again.");
+        }
+      }
+    }
+    catch(errorMsg)
+    {
+      print("Error :: " + errorMsg.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,9 +208,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                         color: Colors.black,
                                         borderRadius: BorderRadius.circular(30),
                                         child: InkWell(
-                                          onTap: () {
-                                             Get.to(DashboardOfFragments());
-                                          },
+                                            onTap: ()
+                                          {
+                                          // if(formkey.currentState!.validate())
+                                          // {
+                                          // loginAdminNow();
+                                          // }
+                                          Get.to(AdminUploadItemsScreen());
+                                         },
                                           borderRadius: BorderRadius.circular(30),
                                           child: Padding(
                                             padding: EdgeInsets.symmetric(
@@ -189,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ],
                                   ),
                                 ),
-                                SizedBox(height: 16,),
+                                const SizedBox(height: 16,),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -215,29 +261,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ],
                                 ),
-                                Text('OR', style: TextStyle(fontSize: 16,color: Colors.black),),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Are you an admin?',
-                                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                                    ),
-                                    TextButton(
-                                      onPressed: (){
-                                        Get.to(AdminLoginScreen());
-                                      },
-                                      child: Text(
-                                        "Click Here",
-                                        style: TextStyle(
-                                          color: Colors.orange,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                )
+                               
+                              
                               ],
                             ),
                           ),

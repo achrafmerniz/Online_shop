@@ -1,8 +1,9 @@
 class API
 {
-  static const hostConnect = "http://192.168.1.42/api_online_store";
+  static const hostConnect = "http://192.168.1.35/api_online_store";
   static const hostConnectUser = "$hostConnect/user";
   static const hostConnectAdmin = "$hostConnect/admin";
+  static const hostUploadItem = "$hostConnect/items";
 
   static const validateEmail="$hostConnectUser/validate_email.php";
   static const signUp="$hostConnectUser/signup.php";
@@ -10,4 +11,6 @@ class API
 
   //login admin
   static const adminLogin="$hostConnectAdmin/login.php";
+  //upload-save new item
+  static const uploadNewItem="$hostUploadItem/upload.php";
 }

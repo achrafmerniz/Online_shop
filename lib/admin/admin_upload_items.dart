@@ -1,9 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:clothes_app/admin/admin_login.dart';
+import 'package:clothes_app/api_connection/api_connection.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 
 class AdminUploadItemsScreen extends StatefulWidget
@@ -183,6 +187,94 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
     );
   }
 
+  // uploadItemfromScreen methodes
+
+   uploadItemImage() async
+  {
+    var requestImgurApi = http.MultipartRequest(
+      "POST",
+      Uri.parse("https://api.imgur.com/3/image")
+    );
+
+    String imageName = DateTime.now().millisecondsSinceEpoch.toString();
+    requestImgurApi.fields['title'] = imageName;
+    requestImgurApi.headers['Authorization'] = "Client-ID " + "894b56981d6622a";
+
+    var imageFile = await http.MultipartFile.fromPath(
+      'image',
+      pickedImageXFile!.path,
+      filename: imageName,
+    );
+
+    requestImgurApi.files.add(imageFile);
+    var responseFromImgurApi = await requestImgurApi.send();
+
+    var responseDataFromImgurApi = await responseFromImgurApi.stream.toBytes();
+    var resultFromImgurApi = String.fromCharCodes(responseDataFromImgurApi);
+
+    Map<String, dynamic> jsonRes = json.decode(resultFromImgurApi);
+    imageLink = (jsonRes["data"]["link"]).toString();
+    String deleteHash = (jsonRes["data"]["deletehash"]).toString();
+
+    saveItemInfoToDatabase();
+  }
+
+
+  saveItemInfoToDatabase() async {
+
+   List<String> tagsList = tagsController.text.split(',');
+   List<String> sizesList = tagsController.text.split(',');
+   List<String> colorsList = tagsController.text.split(',');
+
+    try{
+      var response = await http.post(
+        Uri.parse(API.uploadNewItem),
+        body:{
+          'id_product':'1',
+          'produt_name':nameController.text.trim().toString(),
+          'rating':ratingController.text.trim().toString(),
+          'tags':tagsList.toString(),
+          'price':priceController.text.trim().toString(),
+          'sizes':sizesList.toString(),
+          'colors':colorsList.toString(),
+          'description':descriptionController.text.trim().toString(),
+          'image':imageLink.toString(),
+        }
+      );
+      if(response.statusCode==200){
+        var resBodyOfUploadItem = jsonDecode(response.body);
+
+        if(resBodyOfUploadItem['success']==true)
+       {
+        Fluttertoast.showToast(msg: "New item uploaded sucessfully");
+        
+        setState(() {
+            pickedImageXFile=null;
+            nameController.clear();
+            ratingController.clear();
+            tagsController.clear();
+            priceController.clear();
+            sizesController.clear();
+            colorsController.clear();
+            descriptionController.clear();
+          });
+
+        Get.to(AdminUploadItemsScreen());
+       }else{
+        Fluttertoast.showToast(msg: "Item Not uploaded.Try again");
+       }
+      }else{
+        Fluttertoast.showToast(msg: "status is not 200");
+      }
+      
+    } 
+    catch(errorMsg)
+    {
+          print("Error: " + errorMsg.toString() );
+    } 
+
+  }
+
   Widget uploadItemFormScreen()
   {
     return Scaffold(
@@ -206,7 +298,16 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
         leading: IconButton(
           onPressed: ()
           {
-            Get.to(AdminLoginScreen());
+            setState(() {
+            pickedImageXFile=null;
+            nameController.clear();
+            ratingController.clear();
+            tagsController.clear();
+            priceController.clear();
+            sizesController.clear();
+            colorsController.clear();
+            descriptionController.clear();
+          });
           },
           icon: const Icon(
             Icons.clear,
@@ -596,7 +697,7 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
                               {
                                 if(formKey.currentState!.validate())
                                 {
-
+                                   uploadItemImage();
                                 }
                               },
                               borderRadius: BorderRadius.circular(30),

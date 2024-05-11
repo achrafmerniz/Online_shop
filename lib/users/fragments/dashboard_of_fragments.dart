@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 // import 'package:get/get.dart';
 
 class DashboardOfFragments extends StatelessWidget {
-  List<Widget> _fragmentsScreens = [
+ final List<Widget> _fragmentsScreens = [
     HomeFragmentScreen(),
     FavoriteFragmentScreen(),
     OrderFragmentScreen(),
@@ -17,7 +17,7 @@ class DashboardOfFragments extends StatelessWidget {
 
   ];
 
-  List<Map<String, dynamic>> _navigationButtonPropreties = [
+  final List<Map<String, dynamic>> _navigationButtonPropreties = [
     {
       'active_icon': Icons.home,
       'non_active_icon': Icons.home_outlined,
@@ -39,7 +39,7 @@ class DashboardOfFragments extends StatelessWidget {
       'label': "Profile",
     }
   ];
-  RxInt _indexNumber = 0.obs;
+ final RxInt _indexNumber = 0.obs;
 
   @override
   Widget build(BuildContext context) {

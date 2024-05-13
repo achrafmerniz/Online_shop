@@ -13,10 +13,10 @@ class User{
 
 Map <String,dynamic> toJson()=>
 {
-  'IDUtilisateur': user_id.toString(),
-  'nomUtilisateur': user_name,
-  'Email': user_email,
-  'MotDePasse': user_password,
+  'user_id': user_id.toString(),
+  'user_name': user_name,
+  'user_email': user_email,
+  'user_password': user_password,
 
 };
 }

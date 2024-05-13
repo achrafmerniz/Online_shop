@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:clothes_app/api_connection/api_connection.dart';
 import 'package:clothes_app/users/authentification/login_screen.dart';
 import 'package:clothes_app/users/model/user.dart';
@@ -9,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+ 
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -17,64 +16,93 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
 
-  var formkey=GlobalKey<FormState>();
-  var nameController=TextEditingController();
-  var emailController=TextEditingController();
-  var passwordController=TextEditingController();
-  var isObscure=true.obs;
+  var formkey = GlobalKey<FormState>();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  var isObscure = true.obs;
 
-  validateUserEmail() async {
+  validateUserEmail() async
+  {
     try
     {
-     var res = await http.post(
-       Uri.parse(API.validateEmail),
-       body: {
-        'Email':emailController.text.trim()
-       }
+      var res = await http.post(
+        Uri.parse(API.validateEmail),
+        body: {
+          'user_email': emailController.text.trim(),
+        },
       );
-      if(res.statusCode==200) //if the connection with api to server is success
+
+      if(res.statusCode == 200) //from flutter app the connection with api to server - success
       {
-       var resBodyOfVlaidateEmail = jsonDecode(res.body);
-       if(resBodyOfVlaidateEmail['emailfound']==true)
-       {
-        Fluttertoast.showToast(msg: "Email is already used.Try another email");
-       }else{
-        registerAndSaveUserRecord();
-       }
+        var resBodyOfValidateEmail = jsonDecode(res.body);
+
+        if(resBodyOfValidateEmail['emailFound'] == true)
+        {
+          Fluttertoast.showToast(msg: "Email is already in someone else use. Try another email.");
+        }
+        else
+        {
+          //register & save new user record to database
+          registerAndSaveUserRecord();
+        }
+      }
+      else
+      {
+        Fluttertoast.showToast(msg: "Status is not 200");
       }
     }
-    catch(e){
-
-    }
+    catch (e) {
+  print("Une erreur s'est produite : $e");
+  Fluttertoast.showToast(msg: "email matvalidach : $e");
+}
   }
-  registerAndSaveUserRecord() async {
-  User userModel = User(
-    1,
-    nameController.text.trim(),
-    emailController.text.trim(),
-    passwordController.text.trim(),
-  );
 
-  try {
-    var response = await http.post(
-      Uri.parse(API.signUp),
-      body: userModel.toJson(),
+  registerAndSaveUserRecord() async
+  {
+    User userModel = User(
+      1,
+      nameController.text.trim(),
+      emailController.text.trim(),
+      passwordController.text.trim(),
     );
 
-    if (response.statusCode == 200) {
-      var responseBody = jsonDecode(response.body);
-      if (responseBody['success']) {
-        Fluttertoast.showToast(msg: 'Signup successful');
-      } else {
-        Fluttertoast.showToast(msg: 'Error, please try again');
+    try
+    {
+      var res = await http.post(
+        Uri.parse(API.signUp),
+        body: userModel.toJson(),
+      );
+
+      if(res.statusCode == 200) //from flutter app the connection with api to server - success
+      {
+        var resBodyOfSignUp = jsonDecode(res.body);
+        if(resBodyOfSignUp['success'] == true)
+        {
+          Fluttertoast.showToast(msg: "Congratulations, you are SignUp Successfully.");
+
+          setState(() {
+            nameController.clear();
+            emailController.clear();
+            passwordController.clear();
+          });
+        }
+        else
+        {
+          Fluttertoast.showToast(msg: "Error Occurred, Try Again.");
+        }
+      }
+      else
+      {
+        Fluttertoast.showToast(msg: "Status is not 200");
       }
     }
+    catch(e)
+    {
+      print(e.toString());
+      Fluttertoast.showToast(msg: e.toString());
+    }
   }
-   catch (e) {
-    print('Error: $e');
-    Fluttertoast.showToast(msg: 'Error: $e');
-  }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -297,8 +325,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ),
                                     TextButton(
                                      onPressed: (){
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (context)=>LoginScreen()));
+                                      Get.to(LoginScreen());
                                      },
                                      child: Text("Login Here",
                                      style: TextStyle(

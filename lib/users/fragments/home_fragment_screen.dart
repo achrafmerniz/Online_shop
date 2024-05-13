@@ -1,5 +1,6 @@
 
 
+import 'package:clothes_app/users/item/item_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:convert';
@@ -9,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -121,7 +123,8 @@ class HomeFragmentScreen extends StatelessWidget {
                 fontSize: 24,
               ),
               ),
-            )
+            ),
+            allItemWidget(context),
 
             //trending items
           ],
@@ -219,7 +222,7 @@ class HomeFragmentScreen extends StatelessWidget {
                  return GestureDetector(
                    onTap: ()
                    {
-
+                         Get.to(ItemDetailsScreen(itemInfo:eachClothItemData));
                    },
                    child: Container(
                      width: 200,
@@ -360,5 +363,140 @@ class HomeFragmentScreen extends StatelessWidget {
          }
        },
      );
+   }
+   allItemWidget(context){
+    return FutureBuilder(future: getAllClothItems(),
+    builder: (context, AsyncSnapshot<List<Clothes>> dataSnapShot){
+         if(dataSnapShot.connectionState == ConnectionState.waiting)
+         {
+           return const Center(
+             child: CircularProgressIndicator(),
+           );
+         }
+         if(dataSnapShot.data == null)
+         {
+           return const Center(
+             child: Text(
+               "No Trending item found",
+             ),
+           );
+           
+         }
+         if(dataSnapShot.data!.length>0){
+          return ListView.builder(itemCount: dataSnapShot.data!.length,
+          shrinkWrap: true,
+          physics:const NeverScrollableScrollPhysics(),
+          scrollDirection: Axis.vertical,
+          itemBuilder: (context,index){
+            
+           Clothes eachClothItemRecord = dataSnapShot.data![index];
+           return GestureDetector(
+            onTap: (){
+              Get.to(ItemDetailsScreen(itemInfo:eachClothItemRecord));
+            },
+            child: Container(
+              margin: EdgeInsets.fromLTRB(16, index==0 ? 16 : 8, 16, index==dataSnapShot.data!.length-1 ? 16 : 8),
+              decoration: BoxDecoration(
+                       borderRadius: BorderRadius.circular(20),
+                       color: Colors.black,
+                       boxShadow:
+                       const [
+                         BoxShadow(
+                           offset: Offset(0,0),
+                           blurRadius: 6,
+                           color: Colors.orange,
+                         ),
+                       ],
+                     ),
+                     child: Row(children: [
+                      Expanded(child: Padding(padding: EdgeInsets.only(left: 15),
+                      child:Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                          //name and price
+                          children: [
+                            Row(
+                              children: [
+                                //name - price - tags
+                                Expanded(
+                                child: Text(
+                                eachClothItemRecord.name!,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis, 
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12,right: 12),
+                                  child: Text(
+                                  "\$" + eachClothItemRecord.price!.toString(),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis, 
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.orange,
+                                  ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16,),
+
+                            Text(
+                                "Tags: \n" + eachClothItemRecord.tags.toString().replaceAll("[", "").replaceAll("]", ""),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis, 
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange,
+                                ),
+                                ),
+                          ],
+                      ),
+                      ),
+                      ),
+                      //images
+                       ClipRRect(
+                           borderRadius: const BorderRadius.only(
+                             
+                             topRight: Radius.circular(20),
+                             bottomRight: Radius.circular(20),
+                           ),
+                           child: FadeInImage(
+                             height: 130,
+                             width: 130,
+                             fit: BoxFit.cover,
+                             placeholder: const AssetImage("images/place_holder.png"),
+                             image: NetworkImage(
+                               eachClothItemRecord.image!,
+                             ),
+                             imageErrorBuilder: (context, error, stackTraceError)
+                             {
+                               return const Center(
+                                 child: Icon(
+                                   Icons.broken_image_outlined,
+                                 ),
+                               );
+                             },
+                           ),
+                         ),
+                     ],),
+            ),
+           );
+          },
+          );
+         }
+         else
+         {
+           return const Center(
+             child: Text("Empty, No Data."),
+           );
+         }
+    }
+    );
    }
 }

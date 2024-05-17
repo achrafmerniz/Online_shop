@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import '../../api_connection/api_connection.dart';
+import '../cart/cart_list_screen.dart';
 
 class ItemDetailsScreen extends StatefulWidget {
   final Clothes? itemInfo;
@@ -53,6 +54,122 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     }
   }
 
+  validateFavoriteList() async
+  {
+    try
+    {
+      var res = await http.post(
+        Uri.parse(API.validateFavorite),
+        body: {
+          "user_id": currentOnlineUser.user.user_id.toString(),
+          "item_id": widget.itemInfo!.id_product.toString(),
+        },
+      );
+
+      if(res.statusCode == 200) //from flutter app the connection with api to server - success
+          {
+        var resBodyOfValidateFavorite = jsonDecode(res.body);
+        if(resBodyOfValidateFavorite['favoriteFound'] == true)
+        {
+          itemDetailsController.setIsFavorite(true);
+        }
+        else
+        {
+          itemDetailsController.setIsFavorite(false);
+        }
+      }
+      else
+      {
+        Fluttertoast.showToast(msg: "Status is not 200");
+      }
+    }
+    catch(errorMsg)
+    {
+      print("Error :: " + errorMsg.toString());
+    }
+  }
+
+  addItemToFavoriteList() async
+  {
+    try
+    {
+      var res = await http.post(
+        Uri.parse(API.addFavorite),
+        body: {
+          "user_id": currentOnlineUser.user.user_id.toString(),
+          "item_id": widget.itemInfo!.id_product.toString(),
+        },
+      );
+
+      if(res.statusCode == 200) //from flutter app the connection with api to server - success
+          {
+        var resBodyOfAddFavorite = jsonDecode(res.body);
+        if(resBodyOfAddFavorite['success'] == true)
+        {
+          Fluttertoast.showToast(msg: "item saved to your Favorite List Successfully.");
+
+          validateFavoriteList();
+        }
+        else
+        {
+          Fluttertoast.showToast(msg: "Item not saved to your Favorite List.");
+        }
+      }
+      else
+      {
+        Fluttertoast.showToast(msg: "Status is not 200");
+      }
+    }
+    catch(errorMsg)
+    {
+      print("Error :: " + errorMsg.toString());
+    }
+  }
+
+  deleteItemFromFavoriteList() async
+  {
+    try
+    {
+      var res = await http.post(
+        Uri.parse(API.deleteFavorite),
+        body: {
+          "user_id": currentOnlineUser.user.user_id.toString(),
+          "item_id": widget.itemInfo!.id_product.toString(),
+        },
+      );
+
+      if(res.statusCode == 200) //from flutter app the connection with api to server - success
+          {
+        var resBodyOfDeleteFavorite = jsonDecode(res.body);
+        if(resBodyOfDeleteFavorite['success'] == true)
+        {
+          Fluttertoast.showToast(msg: "item Deleted from your Favorite List.");
+
+          validateFavoriteList();
+        }
+        else
+        {
+          Fluttertoast.showToast(msg: "item NOT Deleted from your Favorite List.");
+        }
+      }
+      else
+      {
+        Fluttertoast.showToast(msg: "Status is not 200");
+      }
+    }
+    catch(errorMsg)
+    {
+      print("Error :: " + errorMsg.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    validateFavoriteList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,6 +200,72 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
             alignment: Alignment.bottomCenter,
             child: itemInfoWidget(),
           ),
+
+          //3 buttons || back - favorite - shopping cart
+          Positioned(
+            top: MediaQuery.of(context).padding.top,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.transparent,
+              child: Row(
+                children: [
+
+                  //back
+                  IconButton(
+                    onPressed: ()
+                    {
+                      Get.back();
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.purpleAccent,
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  //favorite
+                  Obx(()=> IconButton(
+                    onPressed: ()
+                    {
+                      if(itemDetailsController.isFavorite == true)
+                      {
+                        //delete item from favorites
+                        deleteItemFromFavoriteList();
+                      }
+                      else
+                      {
+                        //save item to user favorites
+                        addItemToFavoriteList();
+                      }
+                    },
+                    icon: Icon(
+                      itemDetailsController.isFavorite
+                          ? Icons.bookmark
+                          : Icons.bookmark_border_outlined,
+                      color: Colors.purpleAccent,
+                    ),
+                  )),
+
+                  //shopping cart icon
+                  IconButton(
+                    onPressed: ()
+                    {
+                      Get.to(CartListScreen());
+                    },
+                    icon: const Icon(
+                      Icons.shopping_cart,
+                      color: Colors.purpleAccent,
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+          ),
+
+
         ],
       ),
     );

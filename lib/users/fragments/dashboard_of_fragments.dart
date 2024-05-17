@@ -11,7 +11,7 @@ import 'package:get/get.dart';
 class DashboardOfFragments extends StatelessWidget {
  final List<Widget> _fragmentsScreens = [
     HomeFragmentScreen(),
-    FavoriteFragmentScreen(),
+    FavoritesFragmentScreen(),
     OrderFragmentScreen(),
     ProfileFragmentScreen(),
 

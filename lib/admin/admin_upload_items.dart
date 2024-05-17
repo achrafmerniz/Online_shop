@@ -9,130 +9,99 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
-
-class AdminUploadItemsScreen extends StatefulWidget
-{
-
-
+class AdminUploadItemsScreen extends StatefulWidget {
   @override
   State<AdminUploadItemsScreen> createState() => _AdminUploadItemsScreenState();
 }
 
-
-
-
-
-class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
-{
+class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
   final ImagePicker _picker = ImagePicker();
   XFile? pickedImageXFile;
 
-  var formKey = GlobalKey<FormState>();
-  var nameController = TextEditingController();
-  var ratingController = TextEditingController();
-  var tagsController = TextEditingController();
-  var priceController = TextEditingController();
-  var sizesController = TextEditingController();
-  var colorsController = TextEditingController();
-  var descriptionController = TextEditingController();
-  var imageLink = "";
+  final formKey = GlobalKey<FormState>();
+  final nameController = TextEditingController();
+  final ratingController = TextEditingController();
+  final tagsController = TextEditingController();
+  final priceController = TextEditingController();
+  final sizesController = TextEditingController();
+  final colorsController = TextEditingController();
+  final descriptionController = TextEditingController();
+  String imageLink = "";
 
-
-  //defaultScreen methods
-  captureImageWithPhoneCamera() async
-  {
+  // Image picking methods
+  Future<void> captureImageWithPhoneCamera() async {
     pickedImageXFile = await _picker.pickImage(source: ImageSource.camera);
-
     Get.back();
-
-    setState(()=> pickedImageXFile);
+    setState(() {});
   }
 
-  pickImageFromPhoneGallery() async
-  {
+  Future<void> pickImageFromPhoneGallery() async {
     pickedImageXFile = await _picker.pickImage(source: ImageSource.gallery);
-
     Get.back();
-
-    setState(()=> pickedImageXFile);
+    setState(() {});
   }
 
-  showDialogBoxForImagePickingAndCapturing()
-  {
-    return showDialog(
-        context: context,
-        builder: (context)
-        {
-          return SimpleDialog(
-            backgroundColor: Colors.black,
-            title: const Text(
-              "Item Image",
-              style: TextStyle(
-                color: Colors.deepPurple,
-                fontWeight: FontWeight.bold,
+  void showDialogBoxForImagePickingAndCapturing() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          backgroundColor: Colors.black,
+          title: const Text(
+            "Item Image",
+            style: TextStyle(
+              color: Colors.deepPurple,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          children: [
+            SimpleDialogOption(
+              onPressed: captureImageWithPhoneCamera,
+              child: const Text(
+                "Capture with Phone Camera",
+                style: TextStyle(
+                  color: Colors.grey,
+                ),
               ),
             ),
-            children: [
-              SimpleDialogOption(
-                onPressed: ()
-                {
-                  captureImageWithPhoneCamera();
-                },
-                child: const Text(
-                  "Capture with Phone Camera",
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
+            SimpleDialogOption(
+              onPressed: pickImageFromPhoneGallery,
+              child: const Text(
+                "Pick Image From Phone Gallery",
+                style: TextStyle(
+                  color: Colors.grey,
                 ),
               ),
-              SimpleDialogOption(
-                onPressed: ()
-                {
-                  pickImageFromPhoneGallery();
-                },
-                child: const Text(
-                  "Pick Image From Phone Gallery",
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
+            ),
+            SimpleDialogOption(
+              onPressed: () => Get.back(),
+              child: const Text(
+                "Cancel",
+                style: TextStyle(
+                  color: Colors.red,
                 ),
               ),
-              SimpleDialogOption(
-                onPressed: ()
-                {
-                  Get.back();
-                },
-                child: const Text(
-                  "Cancel",
-                  style: TextStyle(
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-            ],
-          );
-        }
+            ),
+          ],
+        );
+      },
     );
   }
-  //defaultScreen methods ends here
 
-  Widget defaultScreen()
-  {
+  // UI for the default screen
+  Widget defaultScreen() {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.black54,
-                Colors.deepPurple,
-              ],
-            ),
-          ),
+          decoration: const BoxDecoration(color: Colors.black),
         ),
         automaticallyImplyLeading: false,
         title: const Text(
-            "Welcome Admin"
+          "Welcome Admin",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -140,8 +109,8 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.black54,
-              Colors.deepPurple,
+              Colors.red,
+              Colors.orange,
             ],
           ),
         ),
@@ -154,16 +123,11 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
                 color: Colors.white54,
                 size: 200,
               ),
-
-              //button
               Material(
                 color: Colors.black38,
                 borderRadius: BorderRadius.circular(30),
                 child: InkWell(
-                  onTap: ()
-                  {
-                    showDialogBoxForImagePickingAndCapturing();
-                  },
+                  onTap: showDialogBoxForImagePickingAndCapturing,
                   borderRadius: BorderRadius.circular(30),
                   child: const Padding(
                     padding: EdgeInsets.symmetric(
@@ -187,18 +151,16 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
     );
   }
 
-  // uploadItemfromScreen methodes
-
-   uploadItemImage() async
-  {
+  // Methods to handle image upload and item information save
+  Future<void> uploadItemImage() async {
     var requestImgurApi = http.MultipartRequest(
       "POST",
-      Uri.parse("https://api.imgur.com/3/image")
+      Uri.parse("https://api.imgur.com/3/image"),
     );
 
     String imageName = DateTime.now().millisecondsSinceEpoch.toString();
     requestImgurApi.fields['title'] = imageName;
-    requestImgurApi.headers['Authorization'] = "Client-ID " + "894b56981d6622a";
+    requestImgurApi.headers['Authorization'] = "Client-ID YOUR_CLIENT_ID";
 
     var imageFile = await http.MultipartFile.fromPath(
       'image',
@@ -213,43 +175,40 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
     var resultFromImgurApi = String.fromCharCodes(responseDataFromImgurApi);
 
     Map<String, dynamic> jsonRes = json.decode(resultFromImgurApi);
-    imageLink = (jsonRes["data"]["link"]).toString();
-    String deleteHash = (jsonRes["data"]["deletehash"]).toString();
+
+    imageLink = jsonRes["data"]["link"].toString();
 
     saveItemInfoToDatabase();
   }
 
+  Future<void> saveItemInfoToDatabase() async {
+    List<String> tagsList = tagsController.text.split(',');
+    List<String> sizesList = sizesController.text.split(',');
+    List<String> colorsList = colorsController.text.split(',');
 
-  saveItemInfoToDatabase() async {
-
-   List<String> tagsList = tagsController.text.split(',');
-   List<String> sizesList = tagsController.text.split(',');
-   List<String> colorsList = tagsController.text.split(',');
-
-    try{
+    try {
       var response = await http.post(
         Uri.parse(API.uploadNewItem),
-        body:{
-          'id_product':'1',
-          'produt_name':nameController.text.trim().toString(),
-          'rating':ratingController.text.trim().toString(),
-          'tags':tagsList.toString(),
-          'price':priceController.text.trim().toString(),
-          'sizes':sizesList.toString(),
-          'colors':colorsList.toString(),
-          'description':descriptionController.text.trim().toString(),
-          'image':imageLink.toString(),
-        }
+        body: {
+          'id_product': '1',
+          'product_name': nameController.text.trim(),
+          'rating': ratingController.text.trim(),
+          'tags': tagsList.toString(),
+          'price': priceController.text.trim(),
+          'sizes': sizesList.toString(),
+          'colors': colorsList.toString(),
+          'description': descriptionController.text.trim(),
+          'image': imageLink,
+        },
       );
-      if(response.statusCode==200){
+
+      if (response.statusCode == 200) {
         var resBodyOfUploadItem = jsonDecode(response.body);
 
-        if(resBodyOfUploadItem['success']==true)
-       {
-        Fluttertoast.showToast(msg: "New item uploaded sucessfully");
-        
-        setState(() {
-            pickedImageXFile=null;
+        if (resBodyOfUploadItem['success'] == true) {
+          Fluttertoast.showToast(msg: "New item uploaded successfully");
+          setState(() {
+            pickedImageXFile = null;
             nameController.clear();
             ratingController.clear();
             tagsController.clear();
@@ -259,70 +218,61 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
             descriptionController.clear();
           });
 
-        Get.to(AdminUploadItemsScreen());
-       }else{
-        Fluttertoast.showToast(msg: "Item Not uploaded.Try again");
-       }
-      }else{
-        Fluttertoast.showToast(msg: "status is not 200");
+          Get.to(AdminUploadItemsScreen());
+        } else {
+          Fluttertoast.showToast(msg: "Item not uploaded. Try again.");
+        }
+      } else {
+        Fluttertoast.showToast(msg: "Status is not 200");
       }
-      
-    } 
-    catch(errorMsg)
-    {
-          print("Error: " + errorMsg.toString() );
-    } 
-
+    } catch (errorMsg) {
+      Fluttertoast.showToast(msg: "Error: Item not uploaded.");
+      print("Error: $errorMsg");
+    }
   }
 
-  Widget uploadItemFormScreen()
-  {
+  // UI for the upload item form
+  Widget uploadItemFormScreen() {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.black54,
-                Colors.deepPurple,
+                Colors.red,
+                Colors.orange,
               ],
             ),
           ),
         ),
         automaticallyImplyLeading: false,
-        title: const Text(
-            "Upload Form"
-        ),
+        title: const Text("Upload Form"),
         centerTitle: true,
         leading: IconButton(
-          onPressed: ()
-          {
+          onPressed: () {
             setState(() {
-            pickedImageXFile=null;
-            nameController.clear();
-            ratingController.clear();
-            tagsController.clear();
-            priceController.clear();
-            sizesController.clear();
-            colorsController.clear();
-            descriptionController.clear();
-          });
+              pickedImageXFile = null;
+              nameController.clear();
+              ratingController.clear();
+              tagsController.clear();
+              priceController.clear();
+              sizesController.clear();
+              colorsController.clear();
+              descriptionController.clear();
+            });
           },
-          icon: const Icon(
-            Icons.clear,
-          ),
+          icon: const Icon(Icons.clear),
         ),
         actions: [
           TextButton(
-            onPressed: ()
-            {
+            onPressed: () {
               Get.to(AdminLoginScreen());
             },
             child: const Text(
               "Done",
               style: TextStyle(
-                color: Colors.green,
+                color: Colors.white,
               ),
             ),
           ),
@@ -330,30 +280,24 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
       ),
       body: ListView(
         children: [
-
-          //image
+          // Display the picked image
           Container(
             height: MediaQuery.of(context).size.height * 0.4,
             width: MediaQuery.of(context).size.width * 0.8,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: FileImage(
-                  File(pickedImageXFile!.path),
-                ),
+                image: FileImage(File(pickedImageXFile!.path)),
                 fit: BoxFit.cover,
               ),
             ),
           ),
-
-          //upload item form
+          // Upload item form
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
               decoration: const BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(60),
-                ),
+                color: Colors.red,
+                borderRadius: BorderRadius.all(Radius.circular(60)),
                 boxShadow: [
                   BoxShadow(
                     blurRadius: 8,
@@ -364,380 +308,83 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen>
               ),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(30, 30, 30, 8),
-                child: Column(
-                  children: [
-
-                    //email-password-login button
-                    Form(
-                      key: formKey,
-                      child: Column(
-                        children: [
-
-                          //item name
-                          TextFormField(
-                            controller: nameController,
-                            validator: (val) => val == "" ? "Please write item name" : null,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(
-                                Icons.title,
-                                color: Colors.black,
-                              ),
-                              hintText: "item name...",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 6,
-                              ),
-                              fillColor: Colors.white,
-                              filled: true,
-                            ),
-                          ),
-
-                          const SizedBox(height: 18,),
-
-                          //item ratings
-                          TextFormField(
-                            controller: ratingController,
-                            validator: (val) => val == "" ? "Please give item rating" : null,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(
-                                Icons.rate_review,
-                                color: Colors.black,
-                              ),
-                              hintText: "item rating...",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 6,
-                              ),
-                              fillColor: Colors.white,
-                              filled: true,
-                            ),
-                          ),
-
-                          const SizedBox(height: 18,),
-
-                          //item tags
-                          TextFormField(
-                            controller: tagsController,
-                            validator: (val) => val == "" ? "Please write item tags" : null,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(
-                                Icons.tag,
-                                color: Colors.black,
-                              ),
-                              hintText: "item tags...",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 6,
-                              ),
-                              fillColor: Colors.white,
-                              filled: true,
-                            ),
-                          ),
-
-                          const SizedBox(height: 18,),
-
-                          //item price
-                          TextFormField(
-                            controller: priceController,
-                            validator: (val) => val == "" ? "Please write item price" : null,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(
-                                Icons.price_change_outlined,
-                                color: Colors.black,
-                              ),
-                              hintText: "item price...",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 6,
-                              ),
-                              fillColor: Colors.white,
-                              filled: true,
-                            ),
-                          ),
-
-                          const SizedBox(height: 18,),
-
-                          //item sizes
-                          TextFormField(
-                            controller: sizesController,
-                            validator: (val) => val == "" ? "Please write item sizes" : null,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(
-                                Icons.picture_in_picture,
-                                color: Colors.black,
-                              ),
-                              hintText: "item size...",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 6,
-                              ),
-                              fillColor: Colors.white,
-                              filled: true,
-                            ),
-                          ),
-
-                          const SizedBox(height: 18,),
-
-                          //item colors
-                          TextFormField(
-                            controller: colorsController,
-                            validator: (val) => val == "" ? "Please write item colors" : null,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(
-                                Icons.color_lens,
-                                color: Colors.black,
-                              ),
-                              hintText: "item colors...",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 6,
-                              ),
-                              fillColor: Colors.white,
-                              filled: true,
-                            ),
-                          ),
-
-                          const SizedBox(height: 18,),
-
-                          //item description
-                          TextFormField(
-                            controller: descriptionController,
-                            validator: (val) => val == "" ? "Please write item description" : null,
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(
-                                Icons.description,
-                                color: Colors.black,
-                              ),
-                              hintText: "item description...",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(
-                                  color: Colors.white60,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 6,
-                              ),
-                              fillColor: Colors.white,
-                              filled: true,
-                            ),
-                          ),
-
-                          const SizedBox(height: 18,),
-
-                          //button
-                          Material(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(30),
-                            child: InkWell(
-                              onTap: ()
-                              {
-                                if(formKey.currentState!.validate())
-                                {
-                                   uploadItemImage();
-                                }
-                              },
-                              borderRadius: BorderRadius.circular(30),
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 10,
-                                  horizontal: 28,
-                                ),
-                                child: Text(
-                                  "Upload Now",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 16,),
-                  ],
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      buildTextFormField(nameController, "Item Name", Icons.title),
+                      const SizedBox(height: 18),
+                      buildTextFormField(ratingController, "Item Rating", Icons.rate_review),
+                      const SizedBox(height: 18),
+                      buildTextFormField(tagsController, "Item Tags", Icons.tag),
+                      const SizedBox(height: 18),
+                      buildTextFormField(priceController, "Item Price", Icons.price_change_outlined),
+                      const SizedBox(height: 18),
+                      buildTextFormField(sizesController, "Item Sizes", Icons.shop_two_outlined),
+                      const SizedBox(height: 18),
+                      buildTextFormField(colorsController, "Item Colors", Icons.color_lens_outlined),
+                      const SizedBox(height: 18),
+                      buildTextFormField(descriptionController, "Item Description", Icons.description, maxLines: 3),
+                      const SizedBox(height: 18),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          if (formKey.currentState!.validate()) {
+            Fluttertoast.showToast(msg: "Uploading Now...");
+
+            uploadItemImage();
+          }
+        },
+        label: const Text("Upload Now"),
+        icon: const Icon(Icons.cloud_upload),
+        backgroundColor: Colors.red,
       ),
     );
   }
 
-
-
+  // Method to build text form fields
+  TextFormField buildTextFormField(
+      TextEditingController controller, String hint, IconData icon, {int maxLines = 1}) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: Colors.black),
+        hintText: hint,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(color: Colors.white54),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(color: Colors.white54),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(color: Colors.white54),
+        ),
+        contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+        filled: true,
+        fillColor: Colors.white54,
+      ),
+      validator: (value) {
+        if (value!.isEmpty) {
+          return "Please enter $hint.";
+        }
+        return null;
+      },
+      maxLines: maxLines,
+    );
+  }
 
   @override
-  Widget build(BuildContext context)
-  {
+  Widget build(BuildContext context) {
     return pickedImageXFile == null ? defaultScreen() : uploadItemFormScreen();
   }
 }

@@ -3,122 +3,173 @@ import 'package:clothes_app/users/userPreferences/user_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ProfileFragmentScreen extends StatelessWidget {
-  const ProfileFragmentScreen({super.key});
+import '../userPreferences/current_user.dart';
 
-  //final CurrentUser _currentUser = Get.put(CurrentUser());
-  signOutUser() async{
-   var resultResponse = await Get.dialog(
+class ProfileFragmentScreen extends StatelessWidget {
+  ProfileFragmentScreen({super.key});
+
+  final CurrentUser _currentUser = Get.put(CurrentUser());
+
+  signOutUser() async {
+    var resultResponse = await Get.dialog(
       AlertDialog(
-        backgroundColor: Colors.grey,
-        title:const Text('Logout ',
-        style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
-        ),
-        content: Text('Are you sure?\n you want to logout from app?'),
-        actions: [
-          TextButton(onPressed: (){
-            Get.back();
-          }, 
-          child:const Text('No',style: TextStyle(color: Colors.grey),)
+        backgroundColor: Colors.white,
+        title: const Text(
+          "Logout",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          TextButton(onPressed: (){
-            Get.back(result: "LoggedOut");
-          }, 
-          child:const Text('Yes',style: TextStyle(color: Colors.grey),),)
+        ),
+        content: const Text(
+          "Are you sure you want to logout from the app?",
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: const Text(
+              "No",
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back(result: "loggedOut");
+            },
+            child: const Text(
+              "Yes",
+              style: TextStyle(
+                color: Colors.red,
+              ),
+            ),
+          ),
         ],
       ),
-      
     );
-    if(resultResponse=="LoggedOut"){
-      RememberUserPrefs.readUserInfo()
-      .then((value) {
-              Get.off(LoginScreen());
+
+    if (resultResponse == "loggedOut") {
+      // Delete-remove the user data from phone local storage
+      RememberUserPrefs.removeUserInfo().then((value) {
+        Get.off(LoginScreen());
       });
     }
   }
 
-
-  Widget userInfoItemProfile(IconData iconData, String userData)
-  {
+  Widget userInfoItemProfile(IconData iconData, String userData) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.grey,
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
       ),
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
-        vertical: 8,
+        vertical: 12,
       ),
       child: Row(
         children: [
           Icon(
             iconData,
             size: 30,
-            color: Colors.black,
+            color: Colors.orange,
           ),
-          const SizedBox(width: 16,),
-          Text(
-            userData,
-            style: const TextStyle(
-              fontSize: 15,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              userData,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(32),
-      children: [
-
-        Center(
-          child: Image.asset(
-            "images/man.png",
-            width: 240,
-          ),
+    return Obx(() {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.orange,
+          title: const Text("Profile"),
         ),
-
-        const SizedBox(height: 20,),
-
-        //userInfoItemProfile(Icons.person, _currentUser.user.user_name),
-
-        const SizedBox(height: 20,),
-
-        //userInfoItemProfile(Icons.email, _currentUser.user.user_email),
-
-        const SizedBox(height: 20,),
-
-        Center(
-          child: Material(
-            color: Colors.redAccent,
-            borderRadius: BorderRadius.circular(8),
-            child: InkWell(
-              onTap: ()
-              {
-                //signOutUser();
-              },
-              borderRadius: BorderRadius.circular(32),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 12,
+        body: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            Center(
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.orange.shade100,
+                backgroundImage: AssetImage("images/man.png"),
+              ),
+            ),
+            const SizedBox(height: 20),
+            userInfoItemProfile(Icons.person, _currentUser.user.user_name),
+            const SizedBox(height: 20),
+            userInfoItemProfile(Icons.email, _currentUser.user.user_email),
+            const SizedBox(height: 30),
+            Center(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.orange, Colors.deepOrange],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(32),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.shade200,
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  "Sign Out",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(32),
+                  child: InkWell(
+                    onTap: () {
+                      signOutUser();
+                    },
+                    borderRadius: BorderRadius.circular(32),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 12,
+                      ),
+                      child: Text(
+                        "Sign Out",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
-
-      ],
-    );
-
+      );
+    });
   }
 }

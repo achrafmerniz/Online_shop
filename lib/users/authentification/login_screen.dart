@@ -1,13 +1,17 @@
-
+import 'dart:convert';
 import 'package:clothes_app/admin/admin_login.dart';
-import 'package:clothes_app/admin/admin_upload_items.dart';
 import 'package:clothes_app/users/authentification/SignUp_screen.dart';
+import 'package:clothes_app/api_connection/api_connection.dart';
 import 'package:clothes_app/users/fragments/dashboard_of_fragments.dart';
+import '../model/user.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import '../userPreferences/user_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -19,239 +23,212 @@ class _LoginScreenState extends State<LoginScreen> {
   var passwordController = TextEditingController();
   var isObscure = true.obs;
 
+  Future<void> loginUserNow() async {
+    try {
+      var res = await http.post(
+        Uri.parse(API.login),
+        body: {
+          "user_email": emailController.text.trim(),
+          "user_password": passwordController.text.trim(),
+        },
+      );
+
+      if (res.statusCode == 200) {
+        var resBodyOfLogin = jsonDecode(res.body);
+        if (resBodyOfLogin['success'] == true) {
+          Fluttertoast.showToast(msg: "You are logged-in successfully.");
+
+          User userInfo = User.fromJson(resBodyOfLogin["userData"]);
+
+          // Save userInfo to local Storage using Shared Preferences
+          await RememberUserPrefs.storeUserInfo(userInfo);
+
+          await Future.delayed(Duration(milliseconds: 2000), () {
+            Get.to(DashboardOfFragments());
+          });
+        } else {
+          Fluttertoast.showToast(
+              msg: "Incorrect credentials.\nPlease write correct password or email and try again.");
+        }
+      }
+    } catch (errorMsg) {
+      Fluttertoast.showToast(msg: "An error occurred. Please try again.");
+      print("Error :: " + errorMsg.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Background Image
-          
-          Container(
-            color: Colors.orange.shade800,
+      body: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.orange.shade900, Colors.orange.shade600, Colors.orange.shade300],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-
-          // Your login content
-          LayoutBuilder(
-            builder: (context, cons) {
-              return ConstrainedBox(
-                constraints: BoxConstraints(),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                        vertical: 250, ),
-                        child: Container(
-                         height: 600,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(60),
-                             topRight: Radius.circular(60),
-                              
+          child: Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8, // Adjusted width
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Login",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange.shade900,
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Form(
+                    key: formkey,
+                    child: Column(
+                      children: [
+                        // Email Field
+                        TextFormField(
+                          controller: emailController,
+                          validator: (val) => val == "" ? "Please enter your email" : null,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.email, color: Colors.orange.shade900),
+                            hintText: "Email",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
                             ),
+                            filled: true,
+                            fillColor: Colors.grey.shade200,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(30, 50, 30, 8.0),
-                            child: Column(
-                              children: [
-                                Form(
-                                  key: formkey,
-                                  child: Column(
-                                    children: [
-                                      //email
-                                      TextFormField(
-                                        controller: emailController,
-                                        validator: (val) =>
-                                            val == "" ? "Please enter your email" : null,
-                                        decoration: InputDecoration(
-                                          prefixIcon: const Icon(
-                                            Icons.email,
-                                            color: Colors.orange,
-                                          ),
-                                          hintText: "Email.....",
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                            borderSide: const BorderSide(
-                                              color: Colors.orange,
-                                            ),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                            borderSide: const BorderSide(
-                                              color: Colors.orange,
-                                            ),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                            borderSide: const BorderSide(
-                                              color: Colors.orange,
-                                            ),
-                                          ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                            borderSide: const BorderSide(
-                                              color: Colors.orange,
-                                            ),
-                                          ),
-                                          contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 6,
-                                          ),
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10,),
-                                      Obx(
-                                        () => TextFormField(
-                                          controller: passwordController,
-                                          obscureText: isObscure.value,
-                                          validator: (val) =>
-                                              val == "" ? "Please enter your password" : null,
-                                          decoration: InputDecoration(
-                                            prefixIcon: const Icon(
-                                              Icons.vpn_key_sharp,
-                                              color: Colors.orange,
-                                            ),
-                                            suffixIcon: Obx(
-                                              () => GestureDetector(
-                                                onTap: () {
-                                                  isObscure.value = !isObscure.value;
-                                                },
-                                                child: Icon(
-                                                  isObscure.value
-                                                      ? Icons.visibility_off
-                                                      : Icons.visibility,
-                                                  color: Colors.orange,
-                                                ),
-                                              ),
-                                            ),
-                                            hintText: "Password.....",
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30),
-                                              borderSide: const BorderSide(
-                                                color: Colors.orange,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30),
-                                              borderSide: const BorderSide(
-                                                color: Colors.orange,
-                                              ),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30),
-                                              borderSide: const BorderSide(
-                                                color: Colors.orange,
-                                              ),
-                                            ),
-                                            disabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(30),
-                                              borderSide: const BorderSide(
-                                                color: Colors.orange,
-                                              ),
-                                            ),
-                                            contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 14,
-                                              vertical: 6,
-                                            ),
-                                            fillColor: Colors.white,
-                                            filled: true,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20,),
-                                      Material(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.circular(30),
-                                        child: InkWell(
-                                          onTap: () {
-                                             Get.to(DashboardOfFragments());
-                                          },
-                                          borderRadius: BorderRadius.circular(30),
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              vertical: 10,
-                                              horizontal: 28,
-                                            ),
-                                            child: Text(
-                                              "Login",
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                        ),
+                        SizedBox(height: 16),
+                        // Password Field
+                        Obx(
+                          () => TextFormField(
+                            controller: passwordController,
+                            obscureText: isObscure.value,
+                            validator: (val) => val == "" ? "Please enter your password" : null,
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(Icons.lock, color: Colors.orange.shade900),
+                              suffixIcon: GestureDetector(
+                                onTap: () {
+                                  isObscure.value = !isObscure.value;
+                                },
+                                child: Icon(
+                                  isObscure.value ? Icons.visibility_off : Icons.visibility,
+                                  color: Colors.orange.shade900,
                                 ),
-                                SizedBox(height: 16,),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Dont have an account?',
-                                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        // Navigator.of(context).push(
-                                        //   MaterialPageRoute(builder: (context) => SignUpScreen()),
-                                        Get.to(SignUpScreen());
-                                        // );
-                                      },
-                                      child: Text(
-                                        "Register Here",
-                                        style: TextStyle(
-                                          color: Colors.orange,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Text('OR', style: TextStyle(fontSize: 16,color: Colors.black),),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Are you an admin?',
-                                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                                    ),
-                                    TextButton(
-                                      onPressed: (){
-                                        Get.to(AdminLoginScreen());
-                                      },
-                                      child: Text(
-                                        "Click Here",
-                                        style: TextStyle(
-                                          color: Colors.orange,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                )
-                              ],
+                              ),
+                              hintText: "Password",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade200,
                             ),
                           ),
                         ),
-                      )
+                        SizedBox(height: 24),
+                        // Login Button
+                        Material(
+                          color: Colors.orange.shade900,
+                          borderRadius: BorderRadius.circular(12),
+                          child: InkWell(
+                            onTap: () {
+                              if (formkey.currentState!.validate()) {
+                                loginUserNow();
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              child: Center(
+                                child: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Don't have an account?",
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Get.to(SignUpScreen());
+                        },
+                        child: Text(
+                          "Register Here",
+                          style: TextStyle(
+                            color: Colors.orange.shade900,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              );
-            },
+                  SizedBox(height: 8),
+                  Text('OR', style: TextStyle(fontSize: 16, color: Colors.black)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Are you an admin?',
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Get.to(AdminLoginScreen());
+                        },
+                        child: Text(
+                          "Click Here",
+                          style: TextStyle(
+                            color: Colors.orange.shade900,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
 }
-        

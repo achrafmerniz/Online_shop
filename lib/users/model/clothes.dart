@@ -1,6 +1,6 @@
 class Clothes
 {
-  int? item_id;
+  int? id_product;
   String? name;
   double? rating;
   List<String>? tags;
@@ -11,7 +11,7 @@ class Clothes
   String? image;
 
   Clothes({
-    this.item_id,
+    this.id_product,
     this.name,
     this.rating,
     this.tags,
@@ -23,8 +23,8 @@ class Clothes
   });
 
   factory Clothes.fromJson(Map<String, dynamic> json) => Clothes(
-    item_id: int.parse(json["item_id"]),
-    name: json["name"],
+    id_product: int.parse(json["id_product"]),
+    name: json["product_name"],
     rating: double.parse(json["rating"]),
     tags: json["tags"].toString().split(", "),
     price: double.parse(json["price"]),

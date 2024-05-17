@@ -58,8 +58,8 @@ class DashboardOfFragments extends StatelessWidget {
           },
           showSelectedLabels: true,
           showUnselectedLabels: true,
-          selectedItemColor: Colors.orange,
-          unselectedItemColor: Colors.orange.shade200,
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.orange,
           items: List.generate(
             _navigationButtonPropreties.length,
             (index) {

@@ -1,5 +1,6 @@
 import 'package:clothes_app/users/cart/cart_list_screen.dart';
 import 'package:clothes_app/users/item/item_details_screen.dart';
+import 'package:clothes_app/users/item/search_items.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:clothes_app/api_connection/api_connection.dart';
@@ -149,7 +150,9 @@ class HomeFragmentScreen extends StatelessWidget {
             ),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Get.to(SearchItems(typedKeyWords: searchController.text));
+            },
             icon: Icon(Icons.search, color: Colors.orange),
           ),
           SizedBox(width: 8),

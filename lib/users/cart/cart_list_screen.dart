@@ -10,6 +10,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
+import '../item/item_details_screen.dart';
+
 
 class CartListScreen extends StatefulWidget
 {
@@ -340,7 +342,7 @@ class _CartListScreenState extends State<CartListScreen>
                             child: GestureDetector(
                               onTap: ()
                               {
-
+                                Get.to(ItemDetailsScreen(itemInfo: clothesModel));
                               },
                               child: Container(
                                 margin: EdgeInsets.fromLTRB(

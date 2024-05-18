@@ -30,7 +30,7 @@ class Favorite
     favorite_id: int.parse(json['favorite_id']),
     user_id: int.parse(json['user_id']),
     id_product: int.parse(json['id_product']),
-    name: json['name'],
+    name: json['product_name'],
     rating: double.parse(json['rating']),
     tags: json['tags'].toString().split(', '),
     price: double.parse(json['price']),

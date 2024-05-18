@@ -62,7 +62,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
         Uri.parse(API.validateFavorite),
         body: {
           "user_id": currentOnlineUser.user.user_id.toString(),
-          "item_id": widget.itemInfo!.id_product.toString(),
+          "id_product": widget.itemInfo!.id_product.toString(),
         },
       );
 
@@ -85,6 +85,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     }
     catch(errorMsg)
     {
+      
       print("Error :: " + errorMsg.toString());
     }
   }
@@ -97,7 +98,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
         Uri.parse(API.addFavorite),
         body: {
           "user_id": currentOnlineUser.user.user_id.toString(),
-          "item_id": widget.itemInfo!.id_product.toString(),
+          "id_product": widget.itemInfo!.id_product.toString(),
         },
       );
 
@@ -122,6 +123,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
     }
     catch(errorMsg)
     {
+      Fluttertoast.showToast(msg: "try block error");
       print("Error :: " + errorMsg.toString());
     }
   }
@@ -134,7 +136,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
         Uri.parse(API.deleteFavorite),
         body: {
           "user_id": currentOnlineUser.user.user_id.toString(),
-          "item_id": widget.itemInfo!.id_product.toString(),
+          "id_product": widget.itemInfo!.id_product.toString(),
         },
       );
 
@@ -219,7 +221,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                     },
                     icon: const Icon(
                       Icons.arrow_back,
-                      color: Colors.purpleAccent,
+                      color: Colors.orange,
                     ),
                   ),
 
@@ -244,7 +246,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                       itemDetailsController.isFavorite
                           ? Icons.bookmark
                           : Icons.bookmark_border_outlined,
-                      color: Colors.purpleAccent,
+                      color: Colors.orange,
                     ),
                   )),
 
@@ -256,7 +258,7 @@ class _ItemDetailsScreenState extends State<ItemDetailsScreen> {
                     },
                     icon: const Icon(
                       Icons.shopping_cart,
-                      color: Colors.purpleAccent,
+                      color: Colors.orange,
                     ),
                   ),
 

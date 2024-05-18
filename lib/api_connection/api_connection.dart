@@ -1,12 +1,13 @@
 class API
 {
-  static const hostConnect = "http://192.168.1.42/api_online_store";
+  static const hostConnect = "http://192.168.18.23/api_clothes_store";
   static const hostConnectUser = "$hostConnect/user";
   static const hostConnectAdmin = "$hostConnect/admin";
   static const hostItem = "$hostConnect/items";
   static const hostClothes = "$hostConnect/clothes";
   static const hostCart = "$hostConnect/cart";
   static const hostFavorite = "$hostConnect/favorite";
+  static const hostOrder = "$hostConnect/order";
 
   //signUp-Login user
   static const validateEmail = "$hostConnectUser/validate_email.php";
@@ -36,4 +37,6 @@ class API
   static const deleteFavorite = "$hostFavorite/delete.php";
   static const readFavorite = "$hostFavorite/read.php";
 
+  //order
+  static const addOrder = "$hostOrder/add.php";
 }

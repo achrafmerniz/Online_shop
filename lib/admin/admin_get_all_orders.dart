@@ -12,22 +12,22 @@ import 'package:intl/intl.dart';
 import '../../api_connection/api_connection.dart';
 
 
-class OrderFragmentScreen extends StatelessWidget
+class AdminGetAllOrdersScreen extends StatelessWidget
 {
   final currentOnlineUser = Get.put(CurrentUser());
 
 
-  Future<List<Order>> getCurrentUserOrdersList() async
+  Future<List<Order>> getAllOrdersList() async
   {
-    List<Order> ordersListOfCurrentUser = [];
+    List<Order> ordersList = [];
 
     try
     {
       var res = await http.post(
-          Uri.parse(API.readOrders),
+          Uri.parse(API.adminGetAllOrders),
           body:
           {
-            "currentOnlineUserID": currentOnlineUser.user.user_id.toString(),
+
           }
       );
 
@@ -37,9 +37,9 @@ class OrderFragmentScreen extends StatelessWidget
 
         if (responseBodyOfCurrentUserOrdersList['success'] == true)
         {
-          (responseBodyOfCurrentUserOrdersList['currentUserOrdersData'] as List).forEach((eachCurrentUserOrderData)
+          (responseBodyOfCurrentUserOrdersList['allOrdersData'] as List).forEach((eachOrderData)
           {
-            ordersListOfCurrentUser.add(Order.fromJson(eachCurrentUserOrderData));
+            ordersList.add(Order.fromJson(eachOrderData));
           });
         }
       }
@@ -53,7 +53,7 @@ class OrderFragmentScreen extends StatelessWidget
       Fluttertoast.showToast(msg: "Error:: " + errorMsg.toString());
     }
 
-    return ordersListOfCurrentUser;
+    return ordersList;
   }
 
 
@@ -70,7 +70,7 @@ class OrderFragmentScreen extends StatelessWidget
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 8, 0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
 
                 //order icon image
@@ -82,58 +82,28 @@ class OrderFragmentScreen extends StatelessWidget
                       width: 140,
                     ),
                     const Text(
-                      "My Orders",
+                      "All New Orders",
                       style: TextStyle(
                         color: Colors.purpleAccent,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    //some info
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 30.0),
+                      child: Text(
+                        "Here are your successfully placed orders.",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-
-                //history icon image
-                // history
-                GestureDetector(
-                  onTap: ()
-                  {
-                    //send user to orders history screen
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          "images/history_icon.png",
-                          width: 45,
-                        ),
-                        const Text(
-                          "History",
-                          style: TextStyle(
-                            color: Colors.purpleAccent,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
               ],
-            ),
-          ),
-
-          //some info
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Text(
-              "Here are your successfully placed orders.",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-                fontWeight: FontWeight.w400,
-              ),
             ),
           ),
 
@@ -150,7 +120,7 @@ class OrderFragmentScreen extends StatelessWidget
   Widget displayOrdersList(context)
   {
     return FutureBuilder(
-      future: getCurrentUserOrdersList(),
+      future: getAllOrdersList(),
       builder: (context, AsyncSnapshot<List<Order>> dataSnapshot)
       {
         if(dataSnapshot.connectionState == ConnectionState.waiting)

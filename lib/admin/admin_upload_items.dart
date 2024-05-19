@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:clothes_app/admin/admin_get_all_orders.dart';
 import 'package:clothes_app/admin/admin_login.dart';
 import 'package:clothes_app/api_connection/api_connection.dart';
+import 'package:clothes_app/users/authentification/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -96,14 +98,37 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
           decoration: const BoxDecoration(color: Colors.black),
         ),
         automaticallyImplyLeading: false,
-        title: const Text(
-          "Welcome Admin",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: GestureDetector(
+          onTap: ()
+          {
+            Get.to(AdminGetAllOrdersScreen());
+
+          }
+          ,
+
+          child: const Text(
+            "New Orders",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
+        actions: [
+          IconButton(
+            onPressed: ()
+            {
+
+              Get.to(LoginScreen());
+            },
+            icon: const Icon(
+              Icons.logout,
+              color: Colors.redAccent,
+            ),
+          ),
+
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(

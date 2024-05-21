@@ -205,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Are you an admin?',
+                        'Are you an seller?',
                         style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                       ),
                       TextButton(

@@ -1,4 +1,5 @@
 import 'package:clothes_app/users/cart/cart_list_screen.dart';
+import 'package:clothes_app/users/item/categories_screen.dart';
 import 'package:clothes_app/users/item/item_details_screen.dart';
 import 'package:clothes_app/users/item/search_items.dart';
 import 'package:flutter/material.dart';
@@ -65,53 +66,57 @@ class HomeFragmentScreen extends StatelessWidget {
     return allClothItemsList;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16,),
-              // Search bar
-              showSearchBarWidget(),
-              const SizedBox(height: 24,),
-              // Trending items section
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(
-                  "Trending",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                  ),
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16,),
+            // Search bar
+            showSearchBarWidget(),
+            const SizedBox(height: 16,),
+            // Category section
+            categorySection(),
+            const SizedBox(height: 24,),
+            // Trending items section
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                "Trending",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
                 ),
               ),
-              const SizedBox(height: 16,),
-              trendingMostPopularClothItemWidget(context),
-              const SizedBox(height: 24,),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(
-                  "New Collections",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                  ),
+            ),
+            const SizedBox(height: 16,),
+            trendingMostPopularClothItemWidget(context),
+            const SizedBox(height: 24,),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                "New Collections",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
                 ),
               ),
-              const SizedBox(height: 16,),
-              allItemWidget(context),
-            ],
-          ),
+            ),
+            const SizedBox(height: 16,),
+            allItemWidget(context),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget showSearchBarWidget() {
   return Container(
@@ -167,6 +172,51 @@ class HomeFragmentScreen extends StatelessWidget {
     ),
   );
 }
+
+Widget categorySection() {
+  List<Map<String, dynamic>> categories = [
+    {'name': 'Men', 'icon': Icons.male},
+    {'name': 'Women', 'icon': Icons.female},
+    {'name': 'Child', 'icon': Icons.child_friendly},
+  ];
+
+  return Container(
+    height: 60,
+    margin: EdgeInsets.symmetric(vertical: 16),
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: categories.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            Get.to(CategoriesScreen());
+            Fluttertoast.showToast(msg: 'Selected ${categories[index]['name']} category');
+          },
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 8),
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.orange.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(categories[index]['icon'], color: Colors.orange),
+                SizedBox(width: 8),
+                Text(
+                  categories[index]['name'],
+                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+
 
   Widget trendingMostPopularClothItemWidget(BuildContext context) {
     return FutureBuilder(

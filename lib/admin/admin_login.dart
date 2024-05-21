@@ -37,7 +37,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         var resBodyOfLogin = jsonDecode(res.body);
         if (resBodyOfLogin['success'] == true) {
           Fluttertoast.showToast(
-              msg: "Dear Admin, you are logged-in Successfully.");
+              msg: "Dear Seller, you are logged-in Successfully.");
 
           Future.delayed(const Duration(milliseconds: 2000), () {
             Get.to(AdminUploadItemsScreen());
@@ -94,7 +94,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Admin Login",
+                    "Seller Login",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -211,7 +211,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Not an admin?",
+                        "Not a seller?",
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,

@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:clothes_app/admin/admin_get_all_orders.dart';
 import 'package:clothes_app/admin/admin_login.dart';
+import 'package:clothes_app/users/model/clothes.dart';
 import 'package:clothes_app/api_connection/api_connection.dart';
+import 'package:clothes_app/users/authentification/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -46,11 +49,11 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
       context: context,
       builder: (context) {
         return SimpleDialog(
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.white,
           title: const Text(
             "Item Image",
             style: TextStyle(
-              color: Colors.deepPurple,
+              color: Colors.black,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -60,7 +63,7 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
               child: const Text(
                 "Capture with Phone Camera",
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -69,7 +72,7 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
               child: const Text(
                 "Pick Image From Phone Gallery",
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -87,62 +90,189 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
       },
     );
   }
+  Future<void> deleteProduct(int productId) async {
+    var response = await http.post(
+      Uri.parse(API.deleteProduct),
+      body: {
+        'id_product': productId.toString(),
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var resBody = jsonDecode(response.body);
+      if (resBody['success'] == true) {
+        Fluttertoast.showToast(msg: "Product deleted successfully");
+      } else {
+        Fluttertoast.showToast(msg: "Failed to delete product. Try again.");
+      }
+    } else {
+      Fluttertoast.showToast(msg: "Error: Server responded with status ${response.statusCode}");
+    }
+  }
+ void showDeleteProductDialog() {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Select Product to Delete'),
+        content: FutureBuilder<List<Clothes>>(
+          future: fetchProducts(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              List<Clothes> products = snapshot.data!;
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  var product = products[index];
+                  return ListTile(
+                    title: Text(product.name ?? ''),
+                    subtitle: Text('Price: \$${product.price ?? ''}'),
+                    onTap: () {
+                      deleteProduct(product.id_product ?? -1);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              );
+            }
+          },
+        ),
+      );
+    },
+  );
+}
+
+
+
+Future<List<Clothes>> fetchProducts() async {
+  var response = await http.get(Uri.parse(API.getAllClothes));
+
+  if (response.statusCode == 200) {
+    List<dynamic> jsonData = jsonDecode(response.body);
+    List<Clothes> products = [];
+
+    // Convertir les données JSON en une liste d'objets Clothes
+    for (var item in jsonData) {
+      products.add(Clothes.fromJson(item));
+    }
+
+    return products;
+  } else {
+    throw Exception('Failed to load products');
+  }
+}
+
+
+
+
+
+
 
   // UI for the default screen
   Widget defaultScreen() {
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(color: Colors.black),
-        ),
+        backgroundColor: Colors.black,
         automaticallyImplyLeading: false,
-        title: const Text(
-          "Welcome Admin",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: GestureDetector(
+          onTap: () {
+            Get.to(AdminGetAllOrdersScreen());
+          },
+          child: const Text(
+            "New Orders",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        centerTitle: true,
+        centerTitle: false,
+        actions: [
+          IconButton(
+            onPressed: () {
+              Get.to(LoginScreen());
+            },
+            icon: const Icon(
+              Icons.logout,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.red,
-              Colors.orange,
-            ],
-          ),
+          color: Colors.white,
         ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.add_photo_alternate,
-                color: Colors.white54,
-                size: 200,
+              SizedBox(
+                width: 150,
+                height: 150,
+                child: Icon(
+                  Icons.add_photo_alternate,
+                  color: Colors.orange,
+                  size: 80,
+                ),
               ),
-              Material(
-                color: Colors.black38,
-                borderRadius: BorderRadius.circular(30),
-                child: InkWell(
-                  onTap: showDialogBoxForImagePickingAndCapturing,
-                  borderRadius: BorderRadius.circular(30),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 28,
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: showDialogBoxForImagePickingAndCapturing,
+                icon: const Icon(Icons.add),
+                label: const Text("Add New Item"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      // Ajoutez la logique pour montrer la liste des produits à supprimer
+                       showDeleteProductDialog();
+                    },
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                      size: 28,
                     ),
-                    child: Text(
-                      "Add New Item",
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Ajoutez la logique pour montrer la liste des produits à supprimer
+                       showDeleteProductDialog();
+                    },
+                    child: const Text(
+                      "Delete Item",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                       ),
                     ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 28,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
@@ -150,6 +280,12 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
       ),
     );
   }
+
+
+
+
+
+
 
   // Methods to handle image upload and item information save
   Future<void> uploadItemImage() async {
@@ -236,16 +372,7 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.red,
-                Colors.orange,
-              ],
-            ),
-          ),
-        ),
+        backgroundColor: Colors.orange,
         automaticallyImplyLeading: false,
         title: const Text("Upload Form"),
         centerTitle: true,
@@ -295,10 +422,10 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.all(Radius.circular(60)),
-                boxShadow: [
+              decoration: BoxDecoration(
+                color: Colors.orange[100],
+                borderRadius: const BorderRadius.all(Radius.circular(30)),
+                boxShadow: const [
                   BoxShadow(
                     blurRadius: 8,
                     color: Colors.black26,
@@ -344,7 +471,7 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
         },
         label: const Text("Upload Now"),
         icon: const Icon(Icons.cloud_upload),
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.orange,
       ),
     );
   }
@@ -355,23 +482,24 @@ class _AdminUploadItemsScreenState extends State<AdminUploadItemsScreen> {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Colors.black),
+        prefixIcon: Icon(icon, color: Colors.orange),
         hintText: hint,
+        hintStyle: const TextStyle(color: Colors.black54),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: Colors.white54),
+          borderSide: BorderSide(color: Colors.orange),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: Colors.white54),
+          borderSide: BorderSide(color: Colors.orange),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: Colors.white54),
+          borderSide: BorderSide(color: Colors.orange),
         ),
-        contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
         filled: true,
-        fillColor: Colors.white54,
+        fillColor: Colors.white,
       ),
       validator: (value) {
         if (value!.isEmpty) {

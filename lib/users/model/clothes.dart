@@ -9,6 +9,7 @@ class Clothes
   List<String>? colors;
   String? description;
   String? image;
+  String? category;
 
   Clothes({
     this.id_product,
@@ -20,6 +21,7 @@ class Clothes
     this.colors,
     this.description,
     this.image,
+    this.category,
   });
 
   factory Clothes.fromJson(Map<String, dynamic> json) => Clothes(
@@ -32,5 +34,7 @@ class Clothes
     colors: json["colors"].toString().split(", "),
     description: json['description'],
     image: json['image'],
+    category: json['category'],
+
   );
 }

@@ -243,7 +243,7 @@ class _CartListScreenState extends State<CartListScreen> {
                   icon: const Icon(
                     Icons.delete_sweep,
                     size: 26,
-                    color: Colors.redAccent,
+                    color: Colors.black,
                   ),
                 );
               } else {

@@ -11,28 +11,25 @@ import 'package:intl/intl.dart';
 
 import '../../api_connection/api_connection.dart';
 
-class OrderFragmentScreen extends StatelessWidget {
+class AdminGetAllOrdersScreen extends StatelessWidget {
   final currentOnlineUser = Get.put(CurrentUser());
 
-  Future<List<Order>> getCurrentUserOrdersList() async {
-    List<Order> ordersListOfCurrentUser = [];
+  Future<List<Order>> getAllOrdersList() async {
+    List<Order> ordersList = [];
 
     try {
       var res = await http.post(
-        Uri.parse(API.readOrders),
-        body: {
-          "currentOnlineUserID": currentOnlineUser.user.user_id.toString(),
-        },
+        Uri.parse(API.adminGetAllOrders),
+        body: {},
       );
 
       if (res.statusCode == 200) {
         var responseBodyOfCurrentUserOrdersList = jsonDecode(res.body);
 
         if (responseBodyOfCurrentUserOrdersList['success'] == true) {
-          (responseBodyOfCurrentUserOrdersList['currentUserOrdersData'] as List)
-              .forEach((eachCurrentUserOrderData) {
-            ordersListOfCurrentUser
-                .add(Order.fromJson(eachCurrentUserOrderData));
+          (responseBodyOfCurrentUserOrdersList['allOrdersData'] as List)
+              .forEach((eachOrderData) {
+            ordersList.add(Order.fromJson(eachOrderData));
           });
         }
       } else {
@@ -42,21 +39,32 @@ class OrderFragmentScreen extends StatelessWidget {
       Fluttertoast.showToast(msg: "Error:: " + errorMsg.toString());
     }
 
-    return ordersListOfCurrentUser;
+    return ordersList;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.orange,
+        title: const Text(
+          "Admin Orders",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          //Order image       //history image
+          //myOrder title     //history title
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 8, 0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                //order icon image
+                // my orders
                 Column(
                   children: [
                     Image.asset(
@@ -64,53 +72,33 @@ class OrderFragmentScreen extends StatelessWidget {
                       width: 140,
                     ),
                     const Text(
-                      "My Orders",
+                      "All New Orders",
                       style: TextStyle(
                         color: Colors.orange,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ],
-                ),
-                GestureDetector(
-                  onTap: () {
-                    //send user to orders history screen
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          "images/history_icon.png",
-                          width: 45,
+                    //some info
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 30.0),
+                      child: Text(
+                        "Here are your successfully placed orders.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w400,
                         ),
-                        const Text(
-                          "History",
-                          style: TextStyle(
-                            color: Colors.orange,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
-            child: Text(
-              "Here are your successfully placed orders.",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
+
+          //displaying the user orderList
           Expanded(
             child: displayOrdersList(context),
           ),
@@ -121,36 +109,42 @@ class OrderFragmentScreen extends StatelessWidget {
 
   Widget displayOrdersList(context) {
     return FutureBuilder(
-      future: getCurrentUserOrdersList(),
+      future: getAllOrdersList(),
       builder: (context, AsyncSnapshot<List<Order>> dataSnapshot) {
         if (dataSnapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                CircularProgressIndicator(),
-                SizedBox(height: 10),
-                Text(
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Center(
+                child: Text(
                   "Connection Waiting...",
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: Colors.black),
                 ),
-              ],
-            ),
+              ),
+              Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                ),
+              ),
+            ],
           );
         }
         if (dataSnapshot.data == null) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                CircularProgressIndicator(),
-                SizedBox(height: 10),
-                Text(
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Center(
+                child: Text(
                   "No orders found yet...",
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: Colors.black),
                 ),
-              ],
-            ),
+              ),
+              Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                ),
+              ),
+            ],
           );
         }
         if (dataSnapshot.data!.length > 0) {
@@ -162,7 +156,6 @@ class OrderFragmentScreen extends StatelessWidget {
               return const Divider(
                 height: 1,
                 thickness: 1,
-                color: Colors.grey,
               );
             },
             itemCount: orderList.length,
@@ -171,9 +164,10 @@ class OrderFragmentScreen extends StatelessWidget {
 
               return Card(
                 color: Colors.white,
-                elevation: 5,
+                shadowColor: Colors.orangeAccent,
+                elevation: 4,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(15),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(18),
@@ -207,28 +201,36 @@ class OrderFragmentScreen extends StatelessWidget {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        //date
+                        //time
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            //date
                             Text(
                               DateFormat("dd MMMM, yyyy")
                                   .format(eachOrderData.dateTime!),
                               style: const TextStyle(
-                                color: Colors.grey,
+                                color: Colors.black54,
                               ),
                             ),
+
                             const SizedBox(height: 4),
+
+                            //time
                             Text(
                               DateFormat("hh:mm a")
                                   .format(eachOrderData.dateTime!),
                               style: const TextStyle(
-                                color: Colors.grey,
+                                color: Colors.black54,
                               ),
                             ),
                           ],
                         ),
+
                         const SizedBox(width: 6),
+
                         const Icon(
                           Icons.navigate_next,
                           color: Colors.orange,
@@ -241,18 +243,21 @@ class OrderFragmentScreen extends StatelessWidget {
             },
           );
         } else {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                CircularProgressIndicator(),
-                SizedBox(height: 10),
-                Text(
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Center(
+                child: Text(
                   "Nothing to show...",
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: Colors.black),
                 ),
-              ],
-            ),
+              ),
+              Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                ),
+              ),
+            ],
           );
         }
       },

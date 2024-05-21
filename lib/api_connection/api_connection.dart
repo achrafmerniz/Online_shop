@@ -1,6 +1,6 @@
 class API
 {
-  static const hostConnect = "http://192.168.1.35/api_online_store";
+  static const hostConnect = "http://192.168.14.107/api_online_store";
   static const hostConnectUser = "$hostConnect/user";
   static const hostConnectAdmin = "$hostConnect/admin";
   static const hostItem = "$hostConnect/items";
@@ -8,6 +8,7 @@ class API
   static const hostCart = "$hostConnect/cart";
   static const hostFavorite = "$hostConnect/favorite";
   static const hostOrder = "$hostConnect/order";
+  static const hostImages = "$hostConnect/transactions_proof_images/";
 
   //signUp-Login user
   static const validateEmail = "$hostConnectUser/validate_email.php";
@@ -15,15 +16,19 @@ class API
   static const login = "$hostConnectUser/login.php";
 
   //login admin
-  static const adminLogin = "$hostConnectAdmin/login.php";
+  static const adminLogin = "$hostConnectAdmin/loginAdmin.php";
+  static const adminGetAllOrders = "$hostConnectAdmin/read_orders.php";
 
   //items
   static const uploadNewItem = "$hostItem/upload.php";
   static const searchItems = "$hostItem/search.php";
+  static const deleteProduct = "$hostItem/delete_product.php";
+
 
   //Clothes
   static const getTrendingMostPopularClothes = "$hostClothes/trending.php";
   static const getAllClothes = "$hostClothes/all.php";
+  static const categorieProduct = "$hostClothes/category.php";
 
   //cart
   static const addToCart = "$hostCart/add.php";
@@ -39,4 +44,6 @@ class API
 
   //order
   static const addOrder = "$hostOrder/add.php";
+  static const readOrders = "$hostOrder/read.php";
+  static const updateStatus = "$hostOrder/update_status.php";
 }

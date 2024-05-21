@@ -1,59 +1,56 @@
 import 'dart:convert';
-import 'package:clothes_app/admin/admin_login.dart';
-import 'package:clothes_app/users/authentification/SignUp_screen.dart';
+
+import 'package:clothes_app/admin/admin_upload_items.dart';
 import 'package:clothes_app/api_connection/api_connection.dart';
-import 'package:clothes_app/adminn/admin_login.dart';
-import 'package:clothes_app/users/fragments/dashboard_of_fragments.dart';
-import '../model/user.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import '../userPreferences/user_preferences.dart';
+import '../users/authentification/login_screen.dart';
+import 'admin_screen.dart'; // Import the Login Screen
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class AdminnLoginScreen extends StatefulWidget {
+  const AdminnLoginScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<AdminnLoginScreen> createState() => _AdminnLoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _AdminnLoginScreenState extends State<AdminnLoginScreen> {
   var formkey = GlobalKey<FormState>();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
   var isObscure = true.obs;
 
-  Future<void> loginUserNow() async {
+  loginAdminNow() async {
     try {
       var res = await http.post(
-        Uri.parse(API.login),
+        Uri.parse(API.signUpAdmin),
         body: {
-          "user_email": emailController.text.trim(),
-          "user_password": passwordController.text.trim(),
+          "email_admin": emailController.text.trim(),
+          "password_admin": passwordController.text.trim(),
         },
       );
 
       if (res.statusCode == 200) {
         var resBodyOfLogin = jsonDecode(res.body);
         if (resBodyOfLogin['success'] == true) {
-          Fluttertoast.showToast(msg: "You are logged-in successfully.");
+          Fluttertoast.showToast(
+              msg: "Dear admin, you are logged-in Successfully.");
 
-          User userInfo = User.fromJson(resBodyOfLogin["userData"]);
-
-          // Save userInfo to local Storage using Shared Preferences
-          await RememberUserPrefs.storeUserInfo(userInfo);
-
-          await Future.delayed(Duration(milliseconds: 2000), () {
-            Get.to(DashboardOfFragments());
+          Future.delayed(const Duration(milliseconds: 2000), () {
+            Get.to(AdminScreen());
           });
         } else {
           Fluttertoast.showToast(
-              msg: "Incorrect credentials.\nPlease write correct password or email and try again.");
+              msg:
+                  "Incorrect Credentials.\nPlease write correct password or email and Try Again.");
         }
+      } else {
+        Fluttertoast.showToast(msg: "Status is not 200");
       }
     } catch (errorMsg) {
-      Fluttertoast.showToast(msg: "An error occurred. Please try again.");
+      Fluttertoast.showToast(msg: "You are not admin");
       print("Error :: " + errorMsg.toString());
     }
   }
@@ -67,7 +64,11 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: EdgeInsets.symmetric(horizontal: 32),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.orange.shade900, Colors.orange.shade600, Colors.orange.shade300],
+              colors: [
+                Colors.orange.shade900,
+                Colors.orange.shade600,
+                Colors.orange.shade300
+              ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -92,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Login",
+                    "Admin Login",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -104,13 +105,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     key: formkey,
                     child: Column(
                       children: [
-                        // Email Field
                         TextFormField(
                           controller: emailController,
-                          validator: (val) => val == "" ? "Please enter your email" : null,
+                          validator: (val) =>
+                              val == "" ? "Please enter your email" : null,
                           decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.email, color: Colors.orange.shade900),
-                            hintText: "Email",
+                            prefixIcon: Icon(Icons.email,
+                                color: Colors.orange.shade900),
+                            hintText: "Email.....",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
@@ -120,24 +122,27 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         SizedBox(height: 16),
-                        // Password Field
                         Obx(
                           () => TextFormField(
                             controller: passwordController,
                             obscureText: isObscure.value,
-                            validator: (val) => val == "" ? "Please enter your password" : null,
+                            validator: (val) =>
+                                val == "" ? "Please enter your password" : null,
                             decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.lock, color: Colors.orange.shade900),
+                              prefixIcon: Icon(Icons.vpn_key_sharp,
+                                  color: Colors.orange.shade900),
                               suffixIcon: GestureDetector(
                                 onTap: () {
                                   isObscure.value = !isObscure.value;
                                 },
                                 child: Icon(
-                                  isObscure.value ? Icons.visibility_off : Icons.visibility,
+                                  isObscure.value
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
                                   color: Colors.orange.shade900,
                                 ),
                               ),
-                              hintText: "Password",
+                              hintText: "Password.....",
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -147,99 +152,65 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 24),
-                        // Login Button
+                        SizedBox(height: 20),
                         Material(
-                          color: Colors.orange.shade900,
+                          color: Colors.black,
                           borderRadius: BorderRadius.circular(12),
                           child: InkWell(
                             onTap: () {
                               if (formkey.currentState!.validate()) {
-                                loginUserNow();
+                                loginAdminNow();
                               }
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 14),
-                              child: Center(
-                                child: Text(
-                                  "Login",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              padding: EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 28,
+                              ),
+                              child: Text(
+                                "Login",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
                   SizedBox(height: 16),
+                  
+                  SizedBox(height: 16),
+                  // Add Text and Button for navigating back to normal Login screen
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Don't have an account?",
-                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Get.to(SignUpScreen());
-                        },
-                        child: Text(
-                          "Register Here",
-                          style: TextStyle(
-                            color: Colors.orange.shade900,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        "Not a Admin?",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Text('OR', style: TextStyle(fontSize: 16, color: Colors.black)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Are you an seller?',
-                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                    TextButton(
+                    onPressed: () {
+                      Get.to(LoginScreen());
+                    },
+                    child: Text(
+                      "Click Here",
+                      style: TextStyle(
+                        color: Colors.orange.shade900,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Get.to(AdminLoginScreen());
-                        },
-                        child: Text(
-                          "Click Here",
-                          style: TextStyle(
-                            color: Colors.orange.shade900,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(width: 5), // Add spacing between text and icon
-                    IconButton( // Add admin icon button
-                      icon: Icon(Icons.admin_panel_settings, color: Colors.orange.shade900),
-                      onPressed: () {
-                        // Implement navigation to admin registration screen
-                        Get.to(AdminnLoginScreen()); 
-                      },
                     ),
-                     Text( // Add text "Admin Registration"
-          "Admin Login",
-          style: TextStyle(
-            color: Colors.orange.shade900,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+                  ),
+                    ],
+                  ),
+                
                 ],
               ),
             ),

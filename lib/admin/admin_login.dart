@@ -8,7 +8,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 import '../users/authentification/SignUp_screen.dart';
-import '../users/authentification/login_screen.dart'; // Import the Login Screen
+import '../users/authentification/login_screen.dart';
+import 'signup_seller.dart'; // Import the Login Screen
 
 class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({Key? key}) : super(key: key);
@@ -193,7 +194,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Get.to(SignUpScreen());
+                          Get.to(SignUpSeller());
                         },
                         child: Text(
                           "Register Here",

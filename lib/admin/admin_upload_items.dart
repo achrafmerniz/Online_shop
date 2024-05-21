@@ -180,9 +180,19 @@ Future<List<Clothes>> fetchProducts() async {
         backgroundColor: Colors.black,
         automaticallyImplyLeading: false,
         title: GestureDetector(
+<<<<<<< HEAD
           onTap: () {
             Get.to(AdminGetAllOrdersScreen());
           },
+=======
+          onTap: ()
+          {
+            Get.to(AdminGetAllOrdersScreen());
+
+          }
+          ,
+
+>>>>>>> f76d07599b89205dba78d051d8c91811d22fe148
           child: const Text(
             "New Orders",
             style: TextStyle(
@@ -194,14 +204,27 @@ Future<List<Clothes>> fetchProducts() async {
         centerTitle: false,
         actions: [
           IconButton(
+<<<<<<< HEAD
             onPressed: () {
+=======
+            onPressed: ()
+            {
+
+>>>>>>> f76d07599b89205dba78d051d8c91811d22fe148
               Get.to(LoginScreen());
             },
             icon: const Icon(
               Icons.logout,
+<<<<<<< HEAD
               color: Colors.white,
             ),
           ),
+=======
+              color: Colors.redAccent,
+            ),
+          ),
+
+>>>>>>> f76d07599b89205dba78d051d8c91811d22fe148
         ],
       ),
       body: Container(

@@ -41,8 +41,11 @@ dependencies:
   image_picker: ^1.1.1
   flutter_rating_bar: ^4.0.1
   intl: ^0.19.0
+<<<<<<< HEAD
   
   
+=======
+>>>>>>> f76d07599b89205dba78d051d8c91811d22fe148
 
 
 
